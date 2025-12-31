@@ -51,7 +51,7 @@ The built-in importer (`inc/demo-data.php`) fetches placeholder images from Lore
 ## 👨‍💻 Authors
 
 *   Ferat
-*   Antigravity
+*   Uur
 
 ---
 *Version 1.0.0*
