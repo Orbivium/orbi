@@ -92,7 +92,7 @@
                                 'Tümü'        => $base_filter_url,
                                 'Haberler'    => $type_haber,
                                 'İncelemeler' => $type_inceleme,
-                                'Rehberler'   => $cat_rehber,
+                                'Kılavuz'     => $cat_rehber,
                             );
 
                             // Platform specific additions (Tags)

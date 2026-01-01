@@ -10,7 +10,8 @@
  * 1. Register the Meta Box
  */
 function oyunhaber_register_classification_metabox() {
-    $screens = array( 'news', 'reviews', 'videos', 'esports' );
+    // MERGED: 'reviews' removed. Only 'news' (now Content), 'videos', 'esports'.
+    $screens = array( 'news', 'videos', 'esports' );
     
     foreach ( $screens as $screen ) {
         add_meta_box(
@@ -36,6 +37,14 @@ function oyunhaber_render_classification_metabox( $post ) {
     $assigned_platforms = wp_get_object_terms( $post->ID, 'platform', array( 'fields' => 'slugs' ) );
     $assigned_tags      = wp_get_object_terms( $post->ID, 'post_tag', array( 'fields' => 'slugs' ) );
     $assigned_cats      = wp_get_object_terms( $post->ID, 'category', array( 'fields' => 'slugs' ) );
+    $current_type_terms = wp_get_object_terms( $post->ID, 'content_type', array( 'fields' => 'slugs' ) );
+    
+    // Default Type: 'haberler' (News)
+    $current_content_type = 'haberler';
+    if ( ! empty( $current_type_terms ) ) {
+        if ( in_array( 'incelemeler', $current_type_terms ) ) $current_content_type = 'incelemeler';
+        // If has 'haberler', it remains 'haberler'.
+    }
 
     $is_rehber = in_array( 'rehberler', $assigned_cats );
     
@@ -77,10 +86,12 @@ function oyunhaber_render_classification_metabox( $post ) {
     // Get Post Type Label
     $pt = get_post_type( $post );
     $pt_obj = get_post_type_object( $pt );
-    $pt_label = ( $pt == 'news' ) ? 'Haberler' : ( ($pt == 'reviews') ? 'İncelemeler' : $pt_obj->labels->name );
+    $pt_label = ( $pt == 'news' ) ? 'İçerik' : ( ($pt == 'reviews') ? 'İncelemeler' : $pt_obj->labels->name );
 
     ?>
 
+    <div class="oh-editor-panel">
+        
     <div class="oh-editor-panel">
         
         <!-- SECTION: PLATFORM & SUB-CATEGORY -->
@@ -105,20 +116,25 @@ function oyunhaber_render_classification_metabox( $post ) {
                     <!-- Body: Sub-Category Selection (Only visible if active) -->
                     <div class="oh-platform-body" id="body-<?php echo esc_attr( $p_slug ); ?>" style="<?php echo $is_active ? '' : 'display:none;'; ?>">
                         
-                        <!-- Option: Standard (News/Review) -->
+                        <!-- Option: Standard (Haber) -->
                         <label class="oh-sub-option">
-                            <input type="radio" name="oh_sub_cat" value="standard" <?php checked( $current_sub_selection, 'standard' ); ?>>
+                            <input type="radio" name="oh_sub_cat" value="standard" <?php checked( $current_sub_selection == 'standard' && $current_content_type == 'haberler' ); ?>>
                             <span class="oh-radio-fake"></span>
-                            <span class="oh-sub-label">
-                                <?php echo esc_html( $pt_label ); ?> (Standart)
-                            </span>
+                            <span class="oh-sub-label">Haber (Standart)</span>
+                        </label>
+
+                        <!-- Option: İnceleme -->
+                        <label class="oh-sub-option">
+                            <input type="radio" name="oh_sub_cat" value="incelemeler" <?php checked( $current_content_type == 'incelemeler' ); ?>>
+                            <span class="oh-radio-fake"></span>
+                            <span class="oh-sub-label">İnceleme</span>
                         </label>
 
                         <!-- Option: Rehberler (Common) -->
                         <label class="oh-sub-option">
                             <input type="radio" name="oh_sub_cat" value="rehberler" <?php checked( $current_sub_selection, 'rehberler' ); ?>>
                             <span class="oh-radio-fake"></span>
-                            <span class="oh-sub-label">Rehberler</span>
+                            <span class="oh-sub-label">Kılavuz</span>
                         </label>
 
                         <!-- Option: Special (If exists) -->
@@ -225,15 +241,11 @@ function oyunhaber_render_classification_metabox( $post ) {
         
         .special-option .oh-sub-label { color: #ff9f43; }
         
-        .oh-text-input {
-            width: 100%;
-            background: #111;
-            border: 1px solid #333;
-            color: #ddd;
-            padding: 8px;
             border-radius: 4px;
             font-size: 13px;
         }
+
+        /* Type Selector REMOVED */
     </style>
 
     <script>
@@ -301,6 +313,15 @@ function oyunhaber_save_classification_meta( $post_id ) {
         $tags_to_keep = array_merge( $tags_to_keep, $gen_tags );
     }
 
+    // 4. Save Content Type based on Sub-Cat selection
+    // Default is 'haberler', unless 'incelemeler' is picked.
+    $type_to_save = 'haberler';
+    if ( $sub_cat === 'incelemeler' ) {
+        $type_to_save = 'incelemeler';
+    }
+    
+    wp_set_object_terms( $post_id, array( $type_to_save ), 'content_type' );
+
     // Commit changes
     wp_set_object_terms( $post_id, $cats_to_keep, 'category' );
     wp_set_object_terms( $post_id, $tags_to_keep, 'post_tag' );
@@ -311,11 +332,12 @@ add_action( 'save_post', 'oyunhaber_save_classification_meta' );
  * 4. Hide Default Meta Boxes
  */
 function oyunhaber_remove_default_metaboxes() {
-    $screens = array( 'news', 'reviews', 'videos', 'esports' );
+    $screens = array( 'news', 'videos', 'esports' );
     foreach ( $screens as $screen ) {
         remove_meta_box( 'platformdiv', $screen, 'side' );      
         remove_meta_box( 'tagsdiv-post_tag', $screen, 'side' ); 
         remove_meta_box( 'categorydiv', $screen, 'side' );
+        remove_meta_box( 'content_typediv', $screen, 'side' ); // Hide default Type UI
     }
 }
 add_action( 'admin_menu', 'oyunhaber_remove_default_metaboxes', 999 );

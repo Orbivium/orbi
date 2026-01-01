@@ -264,22 +264,44 @@ a:hover {
     background-color: transparent;
     border: 2px solid var(--accent-color);
     margin-left: 10px;
+    color: #fff !important;
+    /* Ensure text visible */
+    padding: 8px 20px;
+    /* Match login padding */
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-register:hover {
     background-color: var(--accent-color);
     color: #fff !important;
+    transform: translateY(-1px);
 }
 
 .btn-logout {
     background-color: #333;
-    border-color: #333;
+    border: 1px solid #333;
+    /* Explicit border */
     margin-left: 10px;
+    color: #ddd !important;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
 }
 
 .btn-logout:hover {
     background-color: #444;
     border-color: #444;
+    color: #fff !important;
 }
 
 /* Grid System */
@@ -1653,26 +1675,25 @@ a:hover {
     top: 100%;
     left: 50%;
     transform: translateX(-50%) translateY(15px);
-    background: rgba(25, 25, 25, 0.95);
+    background: rgba(18, 18, 18, 0.98);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 8px;
-    min-width: 200px;
-    /* Wide enough for clear text */
+    min-width: 160px;
+    /* More compact */
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 5px 15px rgba(0, 0, 0, 0.4);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 9999;
     display: flex;
     flex-direction: column;
     gap: 4px !important;
-    /* Override default specific gap */
 }
 
-/* Arrow indicator on top of dropdown */
+/* 1. Default Arrow (Centered) */
 .platform-sub-menu::before {
     content: '';
     position: absolute;
@@ -1681,18 +1702,57 @@ a:hover {
     transform: translateX(-50%) rotate(45deg);
     width: 12px;
     height: 12px;
-    background: rgba(25, 25, 25, 0.95);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(18, 18, 18, 0.98);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     z-index: -1;
 }
 
-/* Show on hover */
+/* 2. First Item Override: Left Align */
+.platform-item:first-child .platform-sub-menu {
+    left: 0;
+    transform: translateY(15px);
+    border-radius: 0 12px 12px 12px;
+}
+
+.platform-item:first-child .platform-sub-menu::before {
+    left: 20px;
+    transform: rotate(45deg);
+}
+
+.platform-item:first-child:hover .platform-sub-menu,
+.platform-item:first-child:focus-within .platform-sub-menu {
+    transform: translateY(5px);
+}
+
+/* 3. Last Item Override: Right Align */
+.platform-item:last-child .platform-sub-menu {
+    left: auto;
+    right: 0;
+    transform: translateY(15px);
+    border-radius: 12px 0 12px 12px;
+}
+
+.platform-item:last-child .platform-sub-menu::before {
+    left: auto;
+    right: 20px;
+    transform: rotate(45deg);
+}
+
+.platform-item:last-child:hover .platform-sub-menu,
+.platform-item:last-child:focus-within .platform-sub-menu {
+    transform: translateY(5px);
+}
+
+/* Show on hover (Default Centered Behavior) */
 .platform-item:hover .platform-sub-menu,
 .platform-item:focus-within .platform-sub-menu {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(10px);
+    transform: translateX(-50%) translateY(5px);
+
+
+    /* Tighter gap */
 }
 
 .platform-sub-menu li {

@@ -8,11 +8,12 @@
 get_header();
 
 // 1. Get Featured Posts
+// 1. Get Featured Posts
 $featured_query = new WP_Query(array(
-    'post_type'      => array('news', 'reviews'),
+    'post_type'      => array('news', 'videos', 'esports'),
     'meta_key'       => '_oyunhaber_is_featured',
     'meta_value'     => '1',
-    'posts_per_page' => 5, // Top 5 featured
+    'posts_per_page' => 20, // Allow up to 20 featured items for slider
     'ignore_sticky_posts' => 1
 ));
 
@@ -33,46 +34,159 @@ $latest_query = new WP_Query(array(
     <?php get_template_part( 'template-parts/home-slider' ); ?>
 
     <?php if ( $featured_query->have_posts() ) : ?>
-    <!-- HERO SECTION -->
-    <section class="home-hero">
+    <!-- HERO SECTION (Slider Version) -->
+    <section class="home-hero" style="position: relative; overflow: hidden;">
         <div class="container">
-            <div class="hero-grid">
-                
-                <!-- Main Featured (First Post) -->
-                <?php 
-                $featured_query->the_post(); 
-                $main_thumb = get_the_post_thumbnail_url( get_the_ID(), 'full' );
-                ?>
-                <div class="hero-main-card" style="background-image: url('<?php echo esc_url($main_thumb); ?>');">
-                    <div class="hero-overlay"></div>
-                    <div class="hero-content">
-                        <span class="hero-badge"><?php echo ucfirst(get_post_type()); ?></span>
-                        <h2 class="hero-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-                        <div class="hero-meta">
-                            <span><i class="dashicons dashicons-calendar-alt"></i> <?php echo get_the_date(); ?></span>
-                            <span><i class="dashicons dashicons-admin-users"></i> <?php the_author(); ?></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Side Featured (Next 4 Posts) -->
-                <div class="hero-side-grid">
-                    <?php while ( $featured_query->have_posts() ) : $featured_query->the_post(); 
-                        $thumb = get_the_post_thumbnail_url( get_the_ID(), 'medium_large' );
+            
+            <div class="hero-slider-wrapper">
+                <div class="hero-slider-track" id="heroTrack">
+                    
+                    <?php 
+                    $posts = $featured_query->posts;
+                    $chunked_posts = array_chunk($posts, 5); // Group by 5
+                    
+                    foreach ($chunked_posts as $index => $chunk) : 
+                        // First post is Main, others are Side
+                        $main_post = $chunk[0];
+                        $side_posts = array_slice($chunk, 1);
                     ?>
-                    <div class="hero-side-card" style="background-image: url('<?php echo esc_url($thumb); ?>');">
-                         <div class="hero-overlay-soft"></div>
-                         <div class="side-content">
-                            <span class="hero-badge-small"><?php echo ucfirst(get_post_type()); ?></span>
-                            <h3 class="side-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-                         </div>
-                    </div>
-                    <?php endwhile; ?>
-                </div>
+                        <div class="hero-slide-item" style="min-width: 100%;">
+                            <div class="hero-grid">
+                                
+                                <!-- Main Featured -->
+                                <?php 
+                                $main_thumb = get_the_post_thumbnail_url( $main_post->ID, 'full' );
+                                $main_pt = get_post_type($main_post->ID);
+                                $main_label = ($main_pt == 'news') ? 'Haber' : (($main_pt == 'reviews') ? 'İnceleme' : 'İçerik');
+                                
+                                // Check Content Type Taxonomy for precise label
+                                if ($main_pt == 'news') {
+                                    $terms = get_the_terms($main_post->ID, 'content_type');
+                                    if ($terms && !is_wp_error($terms)) $main_label = $terms[0]->name;
+                                }
+                                ?>
+                                <div class="hero-main-card" style="background-image: url('<?php echo esc_url($main_thumb); ?>');">
+                                    <div class="hero-overlay"></div>
+                                    <div class="hero-content">
+                                        <span class="hero-badge"><?php echo esc_html($main_label); ?></span>
+                                        <h2 class="hero-title"><a href="<?php echo get_permalink($main_post->ID); ?>"><?php echo get_the_title($main_post->ID); ?></a></h2>
+                                        <div class="hero-meta">
+                                            <span><i class="dashicons dashicons-calendar-alt"></i> <?php echo get_the_date('', $main_post->ID); ?></span>
+                                            <span><i class="dashicons dashicons-admin-users"></i> <?php echo get_the_author_meta('display_name', $main_post->post_author); ?></span>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <!-- Side Featured -->
+                                <div class="hero-side-grid">
+                                    <?php foreach ($side_posts as $side_post) : 
+                                        $side_thumb = get_the_post_thumbnail_url( $side_post->ID, 'medium_large' );
+                                        $side_pt = get_post_type($side_post->ID);
+                                        $side_label = ($side_pt == 'news') ? 'Haber' : (($side_pt == 'reviews') ? 'İnceleme' : 'İçerik');
+                                        if ($side_pt == 'news') {
+                                            $t = get_the_terms($side_post->ID, 'content_type');
+                                            if ($t && !is_wp_error($t)) $side_label = $t[0]->name;
+                                        }
+                                    ?>
+                                    <div class="hero-side-card" style="background-image: url('<?php echo esc_url($side_thumb); ?>');">
+                                         <div class="hero-overlay-soft"></div>
+                                         <div class="side-content">
+                                            <span class="hero-badge-small"><?php echo esc_html($side_label); ?></span>
+                                            <h3 class="side-title"><a href="<?php echo get_permalink($side_post->ID); ?>"><?php echo get_the_title($side_post->ID); ?></a></h3>
+                                         </div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                    
+                                    <!-- Empty Fillers to maintain grid if < 4 side posts -->
+                                    <?php 
+                                    $missing = 4 - count($side_posts); 
+                                    for($k=0; $k<$missing; $k++): ?>
+                                        <div class="hero-side-card empty" style="background: #1a1a1a; display:flex; align-items:center; justify-content:center;">
+                                            <span class="dashicons dashicons-format-image" style="color:#333; font-size:30px;"></span>
+                                        </div>
+                                    <?php endfor; ?>
+                                </div>
+
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                    
+                </div>
             </div>
+
+            <!-- Controls (Only if > 1 slide) -->
+            <?php if (count($chunked_posts) > 1): ?>
+            <div class="hero-nav-controls">
+                <button id="heroPrev" class="hero-nav-btn"><span class="dashicons dashicons-arrow-left-alt2"></span></button>
+                <button id="heroNext" class="hero-nav-btn"><span class="dashicons dashicons-arrow-right-alt2"></span></button>
+            </div>
+            <?php endif; ?>
+
         </div>
     </section>
+
+    <!-- Hero Slider Script & Styles -->
+    <style>
+        .hero-slider-wrapper { overflow: hidden; width: 100%; position: relative; }
+        .hero-slider-track { display: flex; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); width: 100%; }
+        .hero-nav-controls {
+            position: absolute;
+            bottom: 18px; /* Moved down further */
+            right: 0; /* Center or right? User screenshot shows blank right area, let's put it there */
+            display: flex;
+            gap: 10px;
+            padding-right: 30px; /* Container padding adjustment */
+        }
+        @media(min-width: 1200px) {
+             .hero-nav-controls { right: calc((100% - 1140px) / 2); padding-right: 0; }
+        }
+        
+        .hero-nav-btn {
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        .hero-nav-btn:hover { transform: scale(1.1); background: #fff; color: var(--accent-color); }
+        .hero-nav-btn .dashicons { font-size: 20px; }
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const track = document.getElementById('heroTrack');
+        const prev = document.getElementById('heroPrev');
+        const next = document.getElementById('heroNext');
+        if(!track || !prev || !next) return;
+
+        let index = 0;
+        const slides = document.querySelectorAll('.hero-slide-item');
+        const count = slides.length;
+
+        function update() {
+            track.style.transform = `translateX(-${index * 100}%)`;
+        }
+
+        next.addEventListener('click', () => {
+            index = (index + 1) % count;
+            update();
+        });
+
+        prev.addEventListener('click', () => {
+            index = (index - 1 + count) % count;
+            update();
+        });
+    });
+    </script>
+
     <?php endif; wp_reset_postdata(); ?>
 
     <!-- CONTENT SECTION -->
@@ -97,7 +211,20 @@ $latest_query = new WP_Query(array(
                                     <div class="empty-thumb"></div>
                                 <?php endif; ?>
                             </a>
-                            <span class="card-cat-badge"><?php echo ucfirst(get_post_type()); ?></span>
+                            <?php 
+                            $l_pt = get_post_type();
+                            $l_badge = 'İçerik';
+                            if($l_pt == 'news') {
+                                $l_badge = 'Haber';
+                                $cts = get_the_terms(get_the_ID(), 'content_type');
+                                if($cts && !is_wp_error($cts)) $l_badge = $cts[0]->name;
+                            } elseif($l_pt == 'reviews') {
+                                $l_badge = 'İnceleme';
+                            } elseif($l_pt == 'videos') {
+                                $l_badge = 'Video';
+                            }
+                            ?>
+                            <span class="card-cat-badge"><?php echo esc_html($l_badge); ?></span>
                         </div>
                         <div class="card-body">
                             <h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>

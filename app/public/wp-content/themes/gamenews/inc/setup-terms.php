@@ -37,5 +37,21 @@ function oyunhaber_ensure_default_terms() {
             );
         }
     }
+    // 3. Ensure Content Types exist (Haberler, İncelemeler)
+    if ( taxonomy_exists( 'content_type' ) ) {
+        $c_types = array(
+            'haberler'    => 'Haberler',
+            'incelemeler' => 'İncelemeler'
+        );
+        foreach ( $c_types as $slug => $name ) {
+            if ( ! term_exists( $slug, 'content_type' ) ) {
+                wp_insert_term(
+                    $name,
+                    'content_type',
+                    array( 'slug' => $slug )
+                );
+            }
+        }
+    }
 }
 add_action( 'admin_init', 'oyunhaber_ensure_default_terms' );

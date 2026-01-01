@@ -24,14 +24,28 @@ $custom_query_args = array(
     ),
     'post_status' => 'publish',
     'posts_per_page' => 12,
+    'post__not_in' => isset($exclude_slider_ids) ? $exclude_slider_ids : array(),
 );
 
 // Check Query Parameters
 if ( isset( $_GET['filter_type'] ) && ! empty( $_GET['filter_type'] ) ) {
     $pt = sanitize_text_field( $_GET['filter_type'] );
-    // Ensure we only query safe post types
-    if ( in_array( $pt, array('news', 'reviews') ) ) {
-        $custom_query_args['post_type'] = $pt;
+    
+    // Default valid types for unified 'news' post type
+    // Map URL param -> Taxonomy Slug
+    $type_map = array(
+        'news'    => 'haberler',
+        'reviews' => 'incelemeler'
+    );
+
+    if ( array_key_exists( $pt, $type_map ) ) {
+        $custom_query_args['post_type'] = 'news'; // Always query the unified type
+        $custom_query_args['tax_query'][] = array(
+            'taxonomy' => 'content_type',
+            'field'    => 'slug',
+            'terms'    => $type_map[$pt],
+        );
+
         if ( $pt == 'news' ) $filter_label = 'Haberler';
         if ( $pt == 'reviews' ) $filter_label = 'İncelemeler';
     }
@@ -64,7 +78,160 @@ $platform_query = new WP_Query( $custom_query_args );
 
 <main id="primary" class="site-main">
 
-    <!-- Platform Hero Section -->
+    <?php 
+    // Logic for Platform Slider (Only on 'Tümü' / No Filter)
+    $exclude_slider_ids = array();
+    $show_slider = false;
+
+    if ( empty( $filter_label ) ) {
+        $slider_args = array(
+            'post_type'      => array('news', 'videos', 'esports'),
+            'posts_per_page' => 10,
+            'meta_key'       => '_oyunhaber_is_platform_featured',
+            'meta_value'     => '1',
+            'tax_query'      => array(
+                array(
+                    'taxonomy' => 'platform',
+                    'field'    => 'slug',
+                    'terms'    => $term->slug,
+                ),
+            ),
+        );
+        $slider_query = new WP_Query($slider_args);
+
+        if ( $slider_query->have_posts() ) {
+            $show_slider = true;
+            $exclude_slider_ids = wp_list_pluck( $slider_query->posts, 'ID' );
+        }
+    }
+
+    if ( $show_slider ) : 
+    ?>
+        <!-- PLATFORM SLIDER HERO -->
+        <section class="home-hero platform-hero-slider" style="position: relative; overflow: hidden; margin-top:20px;">
+            <div class="container">
+                <div class="hero-slider-wrapper">
+                    <div class="hero-slider-track" id="heroTrack">
+                        <?php 
+                        $posts = $slider_query->posts;
+                        $chunked_posts = array_chunk($posts, 5);
+                        
+                        foreach ($chunked_posts as $index => $chunk) : 
+                            $main_post = $chunk[0];
+                            $side_posts = array_slice($chunk, 1);
+                        ?>
+                            <div class="hero-slide-item" style="min-width: 100%;">
+                                <div class="hero-grid">
+                                    <!-- Main -->
+                                    <?php 
+                                    $main_thumb = get_the_post_thumbnail_url( $main_post->ID, 'full' );
+                                    $main_pt_label = 'İçerik';
+                                    $mt = get_the_terms($main_post->ID, 'content_type');
+                                    if ($mt && !is_wp_error($mt)) $main_pt_label = $mt[0]->name;
+                                    ?>
+                                    <div class="hero-main-card" style="background-image: url('<?php echo esc_url($main_thumb); ?>'); border-color: <?php echo esc_attr($platform_color); ?>;">
+                                        <div class="hero-overlay"></div>
+                                        <div class="hero-content">
+                                            <span class="hero-badge" style="background-color: <?php echo esc_attr($platform_color); ?>"><?php echo esc_html($main_pt_label); ?></span>
+                                            <h2 class="hero-title"><a href="<?php echo get_permalink($main_post->ID); ?>"><?php echo get_the_title($main_post->ID); ?></a></h2>
+                                            <div class="hero-meta">
+                                                <span><i class="dashicons dashicons-calendar-alt"></i> <?php echo get_the_date('', $main_post->ID); ?></span>
+                                                <span><i class="dashicons dashicons-admin-users"></i> <?php echo get_the_author_meta('display_name', $main_post->post_author); ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Side -->
+                                    <div class="hero-side-grid">
+                                        <?php foreach ($side_posts as $side_post) : 
+                                            $side_thumb = get_the_post_thumbnail_url( $side_post->ID, 'medium_large' );
+                                            $side_pt_label = 'İçerik';
+                                            $st = get_the_terms($side_post->ID, 'content_type');
+                                            if ($st && !is_wp_error($st)) $side_pt_label = $st[0]->name;
+                                        ?>
+                                        <div class="hero-side-card" style="background-image: url('<?php echo esc_url($side_thumb); ?>');">
+                                             <div class="hero-overlay-soft"></div>
+                                             <div class="side-content">
+                                                <span class="hero-badge-small"><?php echo esc_html($side_pt_label); ?></span>
+                                                <h3 class="side-title"><a href="<?php echo get_permalink($side_post->ID); ?>"><?php echo get_the_title($side_post->ID); ?></a></h3>
+                                             </div>
+                                        </div>
+                                        <?php endforeach; ?>
+                                        <?php 
+                                        $missing = 4 - count($side_posts); 
+                                        for($k=0; $k<$missing; $k++): ?>
+                                            <div class="hero-side-card empty" style="background: #1a1a1a; display:flex; align-items:center; justify-content:center;">
+                                                <span class="dashicons dashicons-format-image" style="color:#333; font-size:30px;"></span>
+                                            </div>
+                                        <?php endfor; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <!-- Controls -->
+                <?php if (count($chunked_posts) > 1): ?>
+                <div class="hero-nav-controls">
+                    <button id="heroPrev" class="hero-nav-btn" style="background-color:<?php echo esc_attr($platform_color); ?>"><span class="dashicons dashicons-arrow-left-alt2"></span></button>
+                    <button id="heroNext" class="hero-nav-btn" style="background-color:<?php echo esc_attr($platform_color); ?>"><span class="dashicons dashicons-arrow-right-alt2"></span></button>
+                </div>
+                <?php endif; ?>
+            </div>
+        </section>
+
+        <!-- Reuse Slider Scripts/Styles from Index by including them here implicitly or relying on global -->
+        <!-- We will add the necessary CSS/JS block here to ensure it works independently on archive pages -->
+        <style>
+            .hero-slider-wrapper { overflow: hidden; width: 100%; position: relative; }
+            .hero-slider-track { display: flex; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); width: 100%; }
+            .hero-nav-controls { position: absolute; bottom: 18px; right: 0; display: flex; gap: 10px; padding-right: 30px; }
+            @media(min-width: 1200px) { .hero-nav-controls { right: calc((100% - 1140px) / 2); padding-right: 0; } }
+            .hero-nav-btn { border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.2s; z-index: 10; }
+            .hero-nav-btn:hover { transform: scale(1.1); filter: brightness(1.2); }
+            .hero-nav-btn .dashicons { font-size: 20px; }
+            
+            /* Reuse index grids */
+            .hero-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; height: 500px; }
+            .hero-main-card { position: relative; border-radius: 20px; background-size: cover; background-position: center; overflow: hidden; display: flex; align-items: flex-end; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+            .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, #111 0%, transparent 80%); }
+            .hero-content { position: relative; z-index: 2; padding: 40px; width: 100%; }
+            .hero-badge { color: #fff; padding: 5px 12px; border-radius: 6px; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; display: inline-block; margin-bottom: 10px; }
+            .hero-title { font-size: 2.5rem; font-weight: 800; margin: 0 0 15px 0; line-height: 1.1; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+            .hero-title a { color: #fff; text-decoration: none; }
+            .hero-meta { color: rgba(255,255,255,0.8); font-size: 0.9rem; display: flex; gap: 20px; }
+            .hero-side-grid { display: grid; grid-template-rows: repeat(2, 1fr); grid-template-columns: repeat(2, 1fr); gap: 20px; }
+            .hero-side-card { position: relative; border-radius: 12px; background-size: cover; background-position: center; overflow: hidden; display: flex; align-items: flex-end; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s ease; }
+            .hero-side-card:hover { transform: translateY(-5px); }
+            .hero-overlay-soft { position: absolute; inset: 0; background: linear-gradient(to top, #000 0%, transparent 100%); opacity: 0.8; }
+            .side-content { position: relative; z-index: 2; padding: 15px; }
+            .hero-badge-small { font-size: 0.65rem; background: rgba(0,0,0,0.6); color: #fff; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.2); }
+            .side-title { font-size: 0.95rem; margin: 5px 0 0 0; line-height: 1.3; }
+            .side-title a { color: #fff; text-decoration: none; }
+            @media (max-width: 768px) {
+                .hero-grid { grid-template-columns: 1fr; height: auto; }
+                .hero-main-card { height: 300px; }
+                .hero-side-grid { height: auto; grid-template-columns: 1fr; }
+                .hero-side-card { height: 150px; }
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const track = document.getElementById('heroTrack');
+                const prev = document.getElementById('heroPrev');
+                const next = document.getElementById('heroNext');
+                if(!track || !prev || !next) return;
+                let index = 0;
+                const slides = document.querySelectorAll('.hero-slide-item');
+                const count = slides.length;
+                function update() { track.style.transform = `translateX(-${index * 100}%)`; }
+                next.addEventListener('click', () => { index = (index + 1) % count; update(); });
+                prev.addEventListener('click', () => { index = (index - 1 + count) % count; update(); });
+            });
+        </script>
+    
+    <?php else : ?>
+
+    <!-- Standard Static Hero Section (Fallback) -->
     <div class="platform-hero" style="background: radial-gradient(70% 100% at 50% 110%, <?php echo esc_attr($platform_color); ?>45 0%, #0B0F14 100%);">
         <div class="container hero-content">
             
@@ -117,6 +284,7 @@ $platform_query = new WP_Query( $custom_query_args );
             </p>
         </div>
     </div>
+    <?php endif; ?>
 
     <div class="container" style="margin-top: 40px;">
         

@@ -14,6 +14,9 @@ if ( ! is_user_logged_in() ) {
     exit;
 }
 
+// Prevent Caching
+nocache_headers();
+
 $current_user = wp_get_current_user();
 $user_id      = $current_user->ID;
 $current_phone = get_user_meta( $user_id, 'phone_number', true );

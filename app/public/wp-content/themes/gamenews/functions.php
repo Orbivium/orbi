@@ -13,16 +13,20 @@ if ( ! function_exists( 'oyunhaber_setup' ) ) :
         // TEMPORARY: Flush rewrite rules to fix 404s on new CPTs/Terms
         // This effectively does what 'wp rewrite flush' does but on page load.
         // We check for a transient to avoid running this on every single load forever.
-        if ( ! get_transient( 'oyunhaber_rewrite_flush_v2' ) ) {
+        if ( ! get_transient( 'oyunhaber_rewrite_flush_v3' ) ) {
             flush_rewrite_rules();
-            set_transient( 'oyunhaber_rewrite_flush_v2', true, 12 * HOUR_IN_SECONDS );
+            set_transient( 'oyunhaber_rewrite_flush_v3', true, 12 * HOUR_IN_SECONDS );
         }
 
 		// Make theme available for translation.
 		load_theme_textdomain( 'oyunhaber', get_template_directory() . '/languages' );
 
-		// Add default posts and comments RSS feed links to head.
-		add_theme_support( 'automatic-feed-links' );
+		    // Enable Comment Moderation (Manual Approval)
+    update_option('comment_moderation', 1);
+    update_option('comment_whitelist', 0); // Author must have a previously approved comment? No, force moderation for ALL.
+
+    // Add theme support for automatic feed links.
+    add_theme_support( 'automatic-feed-links' );
 
 		// Let WordPress manage the document title.
 		add_theme_support( 'title-tag' );
@@ -137,6 +141,9 @@ add_action( 'wp_enqueue_scripts', 'oyunhaber_scripts' );
  */
 // Custom Post Types
 require get_template_directory() . '/inc/custom-post-types.php';
+
+// Activity Log Dashboard
+require get_template_directory() . '/inc/activity-log.php';
 
 // Footer Settings
 require get_template_directory() . '/inc/footer-settings.php';

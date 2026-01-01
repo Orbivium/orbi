@@ -22,20 +22,36 @@ function oyunhaber_add_featured_meta_box() {
 add_action( 'add_meta_boxes', 'oyunhaber_add_featured_meta_box' );
 
 function oyunhaber_featured_meta_box_html( $post ) {
-    $value = get_post_meta( $post->ID, '_oyunhaber_is_featured', true );
+    $is_home_featured = get_post_meta( $post->ID, '_oyunhaber_is_featured', true );
+    $is_platform_featured = get_post_meta( $post->ID, '_oyunhaber_is_platform_featured', true );
     ?>
-    <label for="oyunhaber_is_featured">
-        <input type="checkbox" name="oyunhaber_is_featured" id="oyunhaber_is_featured" value="1" <?php checked( $value, 1 ); ?> />
-        Bu içeriği <strong>Anasayfa Manşet</strong> alanında göster
-    </label>
+    <div style="margin-bottom: 15px;">
+        <label for="oyunhaber_is_featured" style="display:block; margin-bottom: 8px;">
+            <input type="checkbox" name="oyunhaber_is_featured" id="oyunhaber_is_featured" value="1" <?php checked( $is_home_featured, 1 ); ?> />
+            <strong>Anasayfa Manşet</strong> alanında göster
+        </label>
+        
+        <label for="oyunhaber_is_platform_featured" style="display:block;">
+            <input type="checkbox" name="oyunhaber_is_platform_featured" id="oyunhaber_is_platform_featured" value="1" <?php checked( $is_platform_featured, 1 ); ?> />
+            <strong>Platform Manşet</strong> alanında göster (İlgili Platformun 'Tümü' sayfasında)
+        </label>
+    </div>
     <?php
 }
 
 function oyunhaber_save_featured_meta_box( $post_id ) {
+    // Save Homepage Featured
     if ( array_key_exists( 'oyunhaber_is_featured', $_POST ) ) {
         update_post_meta( $post_id, '_oyunhaber_is_featured', 1 );
     } else {
         delete_post_meta( $post_id, '_oyunhaber_is_featured' );
+    }
+
+    // Save Platform Featured
+    if ( array_key_exists( 'oyunhaber_is_platform_featured', $_POST ) ) {
+        update_post_meta( $post_id, '_oyunhaber_is_platform_featured', 1 );
+    } else {
+        delete_post_meta( $post_id, '_oyunhaber_is_platform_featured' );
     }
 }
 add_action( 'save_post', 'oyunhaber_save_featured_meta_box' );
@@ -62,7 +78,7 @@ function oyunhaber_render_homepage_admin() {
     }
 
     $hero_posts = new WP_Query(array(
-        'post_type' => array('news', 'reviews'),
+        'post_type' => array('news', 'videos', 'esports'), // Updated types
         'meta_key'   => '_oyunhaber_is_featured',
         'meta_value' => '1',
         'posts_per_page' => -1
@@ -90,13 +106,23 @@ function oyunhaber_render_homepage_admin() {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ( $hero_posts->have_posts() ) : $hero_posts->the_post(); ?>
+                            <?php while ( $hero_posts->have_posts() ) : $hero_posts->the_post(); 
+                                $pt_label = ucfirst(get_post_type());
+                                if ( get_post_type() == 'news' ) {
+                                    $terms = get_the_terms( get_the_ID(), 'content_type' );
+                                    if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+                                        $pt_label = $terms[0]->name;
+                                    } else {
+                                        $pt_label = 'Haber/İçerik';
+                                    }
+                                }
+                            ?>
                             <tr>
                                 <td style="width:60px;">
                                     <?php if(has_post_thumbnail()) the_post_thumbnail('thumbnail', array('style'=>'width:50px;height:50px;object-fit:cover;border-radius:4px;')); ?>
                                 </td>
                                 <td><strong><?php the_title(); ?></strong></td>
-                                <td><?php echo ucfirst(get_post_type()); ?></td>
+                                <td><?php echo esc_html($pt_label); ?></td>
                                 <td><a href="<?php echo get_edit_post_link(); ?>" class="button button-small">Düzenle</a></td>
                             </tr>
                             <?php endwhile; wp_reset_postdata(); ?>

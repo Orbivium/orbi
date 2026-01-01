@@ -58,9 +58,11 @@ get_header();
             <!-- Right: Visual/Team -->
             <div class="about-visual-col">
                 <div class="visual-wrapper">
-                    <div class="image-card">
-                        <!-- Placeholder for team or office image -->
+                    <div class="image-card" <?php if(has_post_thumbnail()) echo 'style="background-image: url(' . get_the_post_thumbnail_url(null, 'large') . '); background-size: cover; background-position: center;"'; ?>>
+                        <?php if(!has_post_thumbnail()): ?>
+                        <!-- Placeholder only if no image -->
                         <div class="placeholder-icon"><span class="dashicons dashicons-groups"></span></div>
+                        <?php endif; ?>
                     </div>
                     <div class="join-us-box">
                         <h4>Aramıza Katıl</h4>
@@ -157,7 +159,39 @@ get_header();
     .about-card h3 { font-size: 1.5rem; margin: 30px 0 15px; color: #fff; }
     .about-card p { line-height: 1.7; color: var(--a-text-muted); margin-bottom: 20px; font-size: 1.05rem; }
 
-    .mission-list { list-style: none; padding: 0; }
+    /* Custom Check List for UL */
+    .about-card ul {
+        list-style: none; /* Remove default bullets */
+        padding: 0;
+        margin-bottom: 20px;
+    }
+    
+    .about-card ul li {
+        position: relative;
+        padding-left: 35px; /* Space for icon */
+        margin-bottom: 15px;
+        color: #fff;
+        font-size: 1.05rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .about-card ul li::before {
+        content: "\f147"; /* Dashicon 'yes' (check) */
+        font-family: 'dashicons';
+        position: absolute;
+        left: 0;
+        top: 2px; /* Slight adjustment */
+        width: 24px;
+        height: 24px;
+        background: rgba(225, 29, 72, 0.15); /* Light red circle */
+        color: var(--a-accent);
+        border-radius: 50%;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
     .mission-list li {
         display: flex; align-items: center; gap: 10px;
         margin-bottom: 15px;
