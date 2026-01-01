@@ -24,6 +24,17 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' && isset( $_POST['oyunhaber_login_nonc
 
     $user = wp_signon( $creds, is_ssl() );
 
+    // DEBUG: Log login attempt
+    $log_entry = "Time: " . date('Y-m-d H:i:s') . "\n";
+    $log_entry .= "Input Login: " . $creds['user_login'] . "\n";
+    if ( is_wp_error( $user ) ) {
+        $log_entry .= "Result: Error - " . $user->get_error_message() . "\n";
+    } else {
+        $log_entry .= "Result: Success - ID: " . $user->ID . ", Login: " . $user->user_login . ", Roles: " . implode(',', $user->roles) . "\n";
+    }
+    $log_entry .= "-----------------------------------\n";
+    file_put_contents( ABSPATH . 'login_debug.txt', $log_entry, FILE_APPEND );
+
     if ( is_wp_error( $user ) ) {
         // Translate common errors for better UX
         if ( $user->get_error_code() == 'incorrect_password' || $user->get_error_code() == 'invalid_username' || $user->get_error_code() == 'invalid_email' ) {
@@ -32,13 +43,24 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' && isset( $_POST['oyunhaber_login_nonc
             $error_message = $user->get_error_message();
         }
     } else {
-        // Redirection logic
-        if ( in_array( 'moderator', (array) $user->roles ) || in_array( 'administrator', (array) $user->roles ) ) {
-             // Mods/Admins might prefer dashboard or profile. Let's send to profile first as requested context implies frontend usage.
-             wp_redirect( home_url( '/profil' ) );
-        } else {
-             wp_redirect( home_url( '/profil' ) );
+        // Successful Login
+        
+        // 1. Manually set current user to be safe
+        wp_set_current_user( $user->ID, $user->user_login );
+        wp_set_auth_cookie( $user->ID );
+        do_action( 'wp_login', $user->user_login, $user );
+
+        // 2. Redirect Logic
+        $redirect_to = home_url( '/profil' ); // Default
+
+        if ( ! empty( $user->roles ) && is_array( $user->roles ) ) {
+            // If Admin or Moderator -> Go to Dashboard
+            if ( in_array( 'administrator', $user->roles ) || in_array( 'moderator', $user->roles ) ) {
+                $redirect_to = admin_url();
+            }
         }
+        
+        wp_redirect( $redirect_to );
         exit;
     }
 }
