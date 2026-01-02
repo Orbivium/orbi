@@ -7,6 +7,14 @@
 ?>
 
     </div><!-- #content -->
+    
+    <?php 
+    if ( function_exists('oyunhaber_display_ad') ) { 
+        echo '<div class="container ad-footer-wrapper" style="margin-top: 40px; margin-bottom: 40px;">';
+        oyunhaber_display_ad('footer'); 
+        echo '</div>';
+    } 
+    ?>
 
     <footer id="colophon" class="site-footer-premium">
         <div class="container">
@@ -213,6 +221,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Scroll to Top Logic
     var scrollButton = document.getElementById('scroll-to-top');
     
     window.onscroll = function() {
@@ -225,12 +234,65 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    scrollButton.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
+    if (scrollButton) {
+        scrollButton.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         });
-    });
+    }
+
+    // Mobile Menu Toggle
+    const menuToggle = document.getElementById('mobile-menu-toggle');
+    const closeMenu = document.getElementById('close-menu');
+    const drawer = document.getElementById('mobile-navigation');
+
+    if (menuToggle && drawer) {
+        menuToggle.addEventListener('click', function() {
+            drawer.classList.add('open');
+        });
+        closeMenu.addEventListener('click', function() {
+            drawer.classList.remove('open');
+        });
+    }
+
+    // Mobile Search Toggle
+    const searchToggle = document.getElementById('mobile-search-toggle');
+    const closeSearch = document.getElementById('close-search');
+    const searchOverlay = document.getElementById('mobile-search-overlay');
+
+    if (searchToggle && searchOverlay) {
+        searchToggle.addEventListener('click', function() {
+            searchOverlay.classList.add('active');
+            // Focus input if exists
+            const input = searchOverlay.querySelector('input');
+            if(input) setTimeout(() => input.focus(), 100);
+        });
+        closeSearch.addEventListener('click', function() {
+            searchOverlay.classList.remove('active');
+        });
+    }
+    // Mobile Submenu Toggle (Accordion)
+    const subMenuToggles = document.querySelectorAll('.submenu-toggle');
+    
+    if (subMenuToggles) {
+        subMenuToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Toggle active state for button
+                this.classList.toggle('active');
+                
+                // Find sibling submenu
+                const subMenu = this.closest('li').querySelector('.mobile-sub-menu');
+                if (subMenu) {
+                    subMenu.classList.toggle('visible');
+                }
+            });
+        });
+    }
 });
 </script>
 

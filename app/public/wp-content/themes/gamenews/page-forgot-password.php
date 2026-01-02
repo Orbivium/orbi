@@ -10,6 +10,27 @@ if ( is_user_logged_in() ) {
     exit;
 }
 
+// Handle Form Submission
+if ( $_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['oyunhaber_forgot_nonce']) && wp_verify_nonce($_POST['oyunhaber_forgot_nonce'], 'oyunhaber_forgot_pass_action') ) {
+    
+    $login = isset($_POST['user_login']) ? trim($_POST['user_login']) : '';
+    
+    if ( ! empty( $login ) ) {
+        // Standard WordPress Retrieve Password Function
+        $errors = retrieve_password( $login );
+
+        if ( is_wp_error( $errors ) ) {
+            // Error occurred - stay on page to show error
+            wp_safe_redirect( add_query_arg('reset_status', 'error', get_permalink()) );
+            exit;
+        } else {
+            // Success - Redirect to Login Page
+            wp_safe_redirect( add_query_arg('auth_msg', 'reset_sent', home_url('/giris-yap/')) );
+            exit;
+        }
+    }
+}
+
 get_header(); 
 ?>
 
@@ -21,81 +42,57 @@ get_header();
             <p>Hesabınıza erişimi kaybettiyseniz endişelenmeyin. Aşağıdaki kutucuğa kayıtlı e-posta adresinizi veya kullanıcı adınızı yazın.</p>
         </div>
 
-        <!-- Dynamic Message Box -->
-        <div id="auth-msg" class="msg-box" style="display:none;"></div>
+        <?php
+        // Success/Error Message Display Logic
+        $is_sent = isset($_GET['reset_status']) && $_GET['reset_status'] == 'sent';
+        $is_error = isset($_GET['reset_status']) && $_GET['reset_status'] == 'error';
 
-        <form id="forgot-password-form" class="auth-form" onsubmit="return false;">
-            <div class="form-group">
-                <label for="user_login">Kullanıcı Adı veya E-Posta</label>
-                <input type="text" name="user_login" id="user_login" required placeholder="ornek@email.com">
+        if ( $is_sent ) : 
+        ?>
+            <!-- SUCCESS STATE: Form Hidden -->
+            <div class="auth-result-message" style="text-align: center;">
+                <div class="success-icon-large" style="font-size: 64px; color: #10b981; margin-bottom: 20px;">
+                    <span class="dashicons dashicons-email-alt" style="font-size: 64px; width: 64px; height: 64px;"></span>
+                </div>
+                <h3 style="color: #fff; margin-bottom: 15px; font-size: 1.5rem;">Bağlantı Gönderildi!</h3>
+                <p style="color: rgba(232, 238, 246, 0.8); line-height: 1.6; margin-bottom: 30px;">
+                    E-posta adresinize şifre sıfırlama talimatlarını içeren bir bağlantı gönderdik. Lütfen gelen kutunuzu (ve gerekiyorsa spam klasörünü) kontrol edin.
+                </p>
+                <div class="auth-links">
+                    <a href="<?php echo home_url('/giris-yap/'); ?>" class="btn-auth-submit" style="display: inline-block; text-decoration: none; width: auto; padding: 12px 30px;">Giriş Yap'a Dön</a>
+                </div>
             </div>
 
-            <button type="submit" class="btn-auth-submit" id="resetBtn">
-                <span class="btn-text">Şifre Sıfırla</span>
-                <span class="spinner-border"></span>
-            </button>
+        <?php else : ?>
+            
+            <!-- FORM STATE -->
+            <?php if ( $is_error ) : ?>
+                <div class="msg-box error">Bu bilgilere sahip bir kullanıcı bulunamadı veya bir hata oluştu. Lütfen tekrar deneyin.</div>
+            <?php endif; ?>
 
-            <div class="auth-links">
-                <a href="<?php echo home_url('/giris-yap/'); ?>" class="back-link"><span class="dashicons dashicons-arrow-left-alt2"></span> Giriş Yap'a Dön</a>
-            </div>
-        </form>
-
-        <script>
-            document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                var loginInput = document.getElementById('user_login').value;
-                var btn = document.getElementById('resetBtn');
-                var msgBox = document.getElementById('auth-msg');
-
-                // UI Reset
-                msgBox.style.display = 'none';
-                msgBox.className = 'msg-box';
-                
-                // Loading State
+            <form method="post" class="auth-form" onsubmit="
+                var btn = this.querySelector('button[type=submit]');
                 btn.disabled = true;
                 btn.classList.add('loading');
-                btn.querySelector('.btn-text').textContent = 'Gönderiliyor...';
+                btn.innerHTML = 'Gönderiliyor...';
+            ">
+                <?php wp_nonce_field('oyunhaber_forgot_pass_action', 'oyunhaber_forgot_nonce'); ?>
+                
+                <div class="form-group">
+                    <label for="user_login">Kullanıcı Adı veya E-Posta</label>
+                    <input type="text" name="user_login" id="user_login" required placeholder="ornek@email.com">
+                </div>
 
-                // AJAX Request
-                var formData = new FormData();
-                formData.append('action', 'oyunhaber_forgot_pass');
-                formData.append('user_login', loginInput);
+                <button type="submit" class="btn-auth-submit">
+                    <span class="btn-text">Şifre Sıfırla</span>
+                </button>
 
-                fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    msgBox.style.display = 'block';
-                    if (data.success) {
-                        msgBox.classList.add('success');
-                        msgBox.textContent = data.data.message;
-                        // İşlem başarılıysa input'u temizle
-                        document.getElementById('user_login').value = '';
-                        btn.querySelector('.btn-text').textContent = 'Gönderildi';
-                    } else {
-                        msgBox.classList.add('error');
-                        msgBox.textContent = data.data.message || 'Bir hata oluştu.';
-                        // Reset button
-                        btn.disabled = false;
-                        btn.classList.remove('loading');
-                        btn.querySelector('.btn-text').textContent = 'Şifre Sıfırla';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    msgBox.style.display = 'block';
-                    msgBox.classList.add('error');
-                    msgBox.textContent = 'Sunucuyla iletişim kurulurken bir hata oluştu.';
-                    
-                    btn.disabled = false;
-                    btn.classList.remove('loading');
-                    btn.querySelector('.btn-text').textContent = 'Şifre Sıfırla';
-                });
-            });
-        </script>
+                <div class="auth-links">
+                    <a href="<?php echo home_url('/giris-yap/'); ?>" class="back-link"><span class="dashicons dashicons-arrow-left-alt2"></span> Giriş Yap'a Dön</a>
+                </div>
+            </form>
+
+        <?php endif; ?>
 
     </div>
 </div>

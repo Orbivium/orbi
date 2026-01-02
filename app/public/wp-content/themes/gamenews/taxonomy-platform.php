@@ -315,9 +315,16 @@ $platform_query = new WP_Query( $custom_query_args );
 
             <div class="card-grid">
                 <?php
+                $post_count = 0;
                 while ( $platform_query->have_posts() ) :
                     $platform_query->the_post();
+                    $post_count++;
                     get_template_part( 'template-parts/content-card' );
+
+                    // Inject Ad every 6 posts
+                    if ( $post_count % 6 === 0 && function_exists('oyunhaber_display_in_feed_ad') ) {
+                        oyunhaber_display_in_feed_ad();
+                    }
                 endwhile;
                 ?>
             </div>

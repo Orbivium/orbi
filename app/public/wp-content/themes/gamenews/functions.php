@@ -160,9 +160,45 @@ require get_template_directory() . '/inc/setup-terms.php';
 require get_template_directory() . '/inc/auto-create-pages.php';
 
 
-// Custom Login Redirects temporarily removed to allow admin access
+/**
+ * Security: Restrict Admin Access and Hide Admin Bar
+ * 
+ * 1. Hide Admin Bar for everyone except Administrators and Editors.
+ * 2. Redirect non-privileged users (Subscribers, Guests) attempting to access wp-admin to the Homepage.
+ * 3. EXCEPTION: Allow access to admin-ajax.php for frontend functionality.
+ */
+function oyunhaber_security_restrictions() {
+    $current_user = wp_get_current_user();
+    $user_roles = ( array ) $current_user->roles;
+
+    // Define allowed roles (Admin, Editor, Author - adjust as needed)
+    // 'subscriber' and 'customer' will be blocked.
+    $allowed_roles = array( 'administrator', 'editor', 'author' );
+    $is_privileged = array_intersect( $allowed_roles, $user_roles );
+
+    // 1. Hide Admin Bar for non-privileged users
+    if ( empty( $is_privileged ) && ! current_user_can( 'manage_options' ) ) {
+        show_admin_bar( false );
+    }
+
+    // 2. Redirect logic for wp-admin access
+    if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+        // If user is not logged in, WordPress handles the redirect to wp-login.php automatically.
+        // We only care if they ARE logged in but have low privileges.
+        if ( is_user_logged_in() ) {
+            if ( empty( $is_privileged ) && ! current_user_can( 'manage_options' ) ) {
+                wp_safe_redirect( home_url() );
+                exit;
+            }
+        }
+    }
+}
+add_action( 'init', 'oyunhaber_security_restrictions' );
+add_action( 'admin_init', 'oyunhaber_security_restrictions' ); // Double check on admin init
 
 require get_template_directory() . '/inc/admin-editor.php';
+require get_template_directory() . '/inc/ads-manager.php'; // Ad Management System
+require get_template_directory() . '/inc/contact-messages.php'; // Contact Messages CPT
 
 /**
  * Helper: Get Platform Color by Slug
@@ -580,7 +616,8 @@ add_filter( 'retrieve_password_message', function( $message, $key, $user_login, 
                     
                     <p style="font-size: 15px; color: #94a3b8; line-height: 1.6; margin-bottom: 20px; text-align: center;">
                         Merhaba <strong>' . esc_html($user_login) . '</strong>,<br>
-                        Hesabınız için bir şifre sıfırlama talebi aldık. Endişelenmeyin, aşağıdaki butona tıklayarak hemen yeni bir şifre belirleyebilirsiniz.
+                        Hesabınız için bir şifre sıfırlama talebi aldık. Endişelenmeyin, aşağıdaki butona tıklayarak hemen yeni bir şifre belirleyebilirsiniz.<br><br>
+                        <em>Bu bağlantı güvenliğiniz için 24 saat süreyle geçerlidir.</em>
                     </p>
 
                     <div style="text-align: center; margin: 30px 0;">

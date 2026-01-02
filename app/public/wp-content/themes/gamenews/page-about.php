@@ -64,10 +64,17 @@ get_header();
                         <div class="placeholder-icon"><span class="dashicons dashicons-groups"></span></div>
                         <?php endif; ?>
                     </div>
-                    <div class="join-us-box">
-                        <h4>Aramıza Katıl</h4>
-                        <p>Sen de oyunlar hakkında yazmak istiyor musun? Moderatör başvurularımız açık!</p>
-                        <a href="<?php echo home_url('/kayit-ol/'); ?>" class="btn-join">Başvuru Yap</a>
+                    <div class="glass-card join-card-premium">
+                        <div class="join-card-content">
+                            <div class="join-icon-circle">
+                                <span class="dashicons dashicons-email-alt"></span>
+                            </div>
+                            <h4>Reklam ve İletişim</h4>
+                            <p>Markanızı oyuncu kitlemizle buluşturun. Özel projeler, sponsorluklar ve reklam çalışmaları için bizimle iletişime geçin.</p>
+                            <a href="<?php echo home_url('/iletisim/'); ?>" class="btn-join-premium">
+                                Bize Ulaşın <span class="dashicons dashicons-arrow-right-alt2" style="font-size:16px; width:16px; height:16px; margin-top:2px;"></span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -150,9 +157,10 @@ get_header();
     .glass-card {
         background: var(--a-card-bg);
         border: 1px solid var(--a-border);
-        border-radius: 20px;
+        border-radius: 20px; /* Consistent rounded corners */
         padding: 40px;
         margin-bottom: 30px;
+        backdrop-filter: blur(10px); /* Glass effect */
     }
 
     .about-card h2 { font-size: 2rem; margin-bottom: 20px; color: #fff; font-weight: 700; }
@@ -192,20 +200,6 @@ get_header();
         align-items: center;
         justify-content: center;
     }
-    .mission-list li {
-        display: flex; align-items: center; gap: 10px;
-        margin-bottom: 15px;
-        font-size: 1.05rem;
-        color: #fff;
-    }
-    .mission-list li .dashicons {
-        color: var(--a-accent);
-        background: rgba(225, 29, 72, 0.1);
-        border-radius: 50%;
-        padding: 5px;
-        width: 24px; height: 24px;
-        display: flex; align-items: center; justify-content: center;
-    }
 
     /* Stats */
     .stats-card {
@@ -234,33 +228,64 @@ get_header();
     }
     .placeholder-icon .dashicons { font-size: 64px; color: rgba(255,255,255,0.1); width: 64px; height: 64px; }
 
-    .join-us-box {
-        background: linear-gradient(135deg, var(--a-accent), #ef4444);
-        padding: 30px;
-        border-radius: 20px;
+    /* Premium Join Card */
+    .join-card-premium {
+        position: relative;
+        overflow: hidden;
         text-align: center;
-        color: #fff;
-        box-shadow: 0 10px 30px rgba(225, 29, 72, 0.3);
+        border: 1px solid rgba(225, 29, 72, 0.2); /* Subtle red border */
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
     }
-    .join-us-box h4 { font-size: 1.5rem; margin-bottom: 10px; font-weight: 800; }
-    .join-us-box p { margin-bottom: 20px; font-size: 0.95rem; opacity: 0.9; }
-
-    .btn-join {
-        display: inline-block;
-        background: #fff;
+    .join-card-premium::before {
+        content: '';
+        position: absolute;
+        top: -50%; left: -50%;
+        width: 200%; height: 200%;
+        background: radial-gradient(circle, rgba(225, 29, 72, 0.08) 0%, transparent 60%);
+        z-index: 0;
+        pointer-events: none;
+    }
+    .join-card-content { position: relative; z-index: 1; }
+    
+    .join-icon-circle {
+        width: 64px; height: 64px;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, rgba(225, 29, 72, 0.1), rgba(225, 29, 72, 0.05));
+        border: 1px solid rgba(225, 29, 72, 0.2);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
         color: var(--a-accent);
-        padding: 10px 25px;
-        border-radius: 50px;
+        box-shadow: 0 0 20px rgba(225, 29, 72, 0.1);
+    }
+    .join-icon-circle .dashicons { font-size: 28px; width: 28px; height: 28px; }
+
+    .join-card-premium h4 { font-size: 1.6rem; color: #fff; margin-bottom: 15px; font-weight: 800; letter-spacing: -0.5px; }
+    .join-card-premium p { color: #ccc; font-size: 1rem; margin-bottom: 30px; line-height: 1.6; }
+
+    .btn-join-premium {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(90deg, var(--a-accent), #f43f5e);
+        color: #fff;
+        padding: 14px 35px;
+        border-radius: 12px;
         font-weight: 700;
         text-decoration: none;
-        transition: transform 0.2s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3);
+        border: 1px solid rgba(255,255,255,0.1);
     }
-    .btn-join:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    .btn-join-premium:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(225, 29, 72, 0.5);
+    }
 
     @media (max-width: 900px) {
         .hero-title { font-size: 2.5rem; }
         .about-grid { grid-template-columns: 1fr; }
         .stats-card { flex-direction: column; gap: 30px; }
+        .image-card { height: 250px; }
     }
 </style>
 

@@ -214,3 +214,24 @@ Stack trace:
 [01-Jan-2026 23:05:44 UTC] PHP Parse error:  Unmatched '}' in C:\Users\ferat\Local Sites\orbi\app\public\wp-content\themes\gamenews\inc\custom-post-types.php on line 154
 [01-Jan-2026 23:05:44 UTC] PHP Parse error:  Unmatched '}' in C:\Users\ferat\Local Sites\orbi\app\public\wp-content\themes\gamenews\inc\custom-post-types.php on line 154
 [01-Jan-2026 23:05:44 UTC] PHP Parse error:  Unmatched '}' in C:\Users\ferat\Local Sites\orbi\app\public\wp-content\themes\gamenews\inc\custom-post-types.php on line 154
+[02-Jan-2026 17:03:36 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in C:\Users\ferat\Local Sites\orbi\app\public\wp-content\themes\gamenews\index.php on line 482
+[02-Jan-2026 17:31:21 UTC] PHP Warning:  Attempt to read property "labels" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:31:21 UTC] PHP Warning:  Attempt to read property "view_item" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:31:21 UTC] PHP Warning:  Attempt to read property "labels" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:31:21 UTC] PHP Warning:  Attempt to read property "view_item" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:36:41 UTC] PHP Warning:  Attempt to read property "labels" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:36:41 UTC] PHP Warning:  Attempt to read property "view_item" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:36:41 UTC] PHP Warning:  Attempt to read property "labels" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:36:41 UTC] PHP Warning:  Attempt to read property "view_item" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:38:22 UTC] PHP Warning:  Attempt to read property "labels" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:38:22 UTC] PHP Warning:  Attempt to read property "view_item" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:38:22 UTC] PHP Warning:  Attempt to read property "labels" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:38:22 UTC] PHP Warning:  Attempt to read property "view_item" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:41:02 UTC] PHP Warning:  Attempt to read property "labels" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:41:02 UTC] PHP Warning:  Attempt to read property "view_item" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:41:02 UTC] PHP Warning:  Attempt to read property "labels" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 17:41:02 UTC] PHP Warning:  Attempt to read property "view_item" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 20:38:30 UTC] PHP Warning:  Attempt to read property "labels" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 20:38:30 UTC] PHP Warning:  Attempt to read property "view_item" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 20:38:30 UTC] PHP Warning:  Attempt to read property "labels" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106
+[02-Jan-2026 20:38:30 UTC] PHP Warning:  Attempt to read property "view_item" on null in C:\Users\ferat\Local Sites\orbi\app\public\wp-admin\includes\class-wp-comments-list-table.php on line 1106

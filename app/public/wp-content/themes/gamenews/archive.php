@@ -16,9 +16,17 @@ get_header();
 			<?php
             echo '<div class="card-grid">';
             /* Start the Loop */
+            /* Start the Loop */
+            $post_count = 0;
             while ( have_posts() ) :
                 the_post();
+                $post_count++;
                 get_template_part( 'template-parts/content-card' );
+
+                // Inject Ad every 6 posts
+                if ( $post_count % 6 === 0 && function_exists('oyunhaber_display_in_feed_ad') ) {
+                    oyunhaber_display_in_feed_ad();
+                }
             endwhile;
             echo '</div>'; // .card-grid
 

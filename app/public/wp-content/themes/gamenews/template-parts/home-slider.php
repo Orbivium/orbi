@@ -72,6 +72,12 @@ if ( $slider_query->have_posts() ) :
     </div>
 </div>
 
+<?php if ( function_exists('oyunhaber_display_ad') ) : ?>
+    <div class="container">
+        <?php oyunhaber_display_ad('home_below_slider'); ?>
+    </div>
+<?php endif; ?>
+
 <style>
 /* Slider CSS */
 .home-main-slider-wrapper {
@@ -194,7 +200,7 @@ if ( $slider_query->have_posts() ) :
 /* Navigation Styles */
 .slider-nav {
     position: absolute;
-    bottom: 40px;
+    bottom: 10px;
     left: 0;
     width: 100%;
     z-index: 10;

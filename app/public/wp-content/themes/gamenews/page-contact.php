@@ -6,9 +6,44 @@
  */
 
 $msg_sent = false;
+$mail_error = false;
+$c_name = '';
+$c_email = '';
+$c_subject = '';
+$c_message = '';
+
 if ( $_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['contact_nonce']) && wp_verify_nonce($_POST['contact_nonce'], 'send_contact') ) {
-    // In a real scenario, you would mail() this.
-    // For now, let's simulate success.
+    $c_name    = sanitize_text_field($_POST['c_name']);
+    $c_email   = sanitize_email($_POST['c_email']);
+    $c_subject = sanitize_text_field($_POST['c_subject']);
+    $c_message = sanitize_textarea_field($_POST['c_message']);
+
+    // Save as Post (Custom Post Type)
+    $post_data = array(
+        'post_title'    => $c_subject . ' - ' . $c_name,
+        'post_content'  => $c_message,
+        'post_status'   => 'publish',
+        'post_type'     => 'contact_message',
+    );
+
+    $post_id = wp_insert_post( $post_data );
+
+    if ( $post_id && ! is_wp_error( $post_id ) ) {
+        // Save Meta Data
+        update_post_meta( $post_id, 'contact_name', $c_name );
+        update_post_meta( $post_id, 'contact_email', $c_email );
+        update_post_meta( $post_id, 'contact_ip', $_SERVER['REMOTE_ADDR'] );
+        
+        // Redirect to prevent F5 resubmission
+        wp_safe_redirect( add_query_arg( 'sent', '1', get_permalink() ) );
+        exit;
+    } else {
+        $mail_error = true;
+    }
+}
+
+// Check for success flag in URL
+if ( isset($_GET['sent']) && $_GET['sent'] == '1' ) {
     $msg_sent = true;
 }
 
@@ -79,6 +114,13 @@ get_header();
             <!-- Form Side -->
             <div class="contact-form-wrapper">
                 <div class="glass-card">
+                    <?php if ( $mail_error ) : ?>
+                        <div class="error-box" style="background: rgba(220,38,38,0.2); border: 1px solid #ef4444; padding: 15px; border-radius: 10px; margin-bottom: 20px; color: #fecaca; display: flex; align-items: center; gap: 10px;">
+                            <span class="dashicons dashicons-warning" style="color: #ef4444;"></span>
+                            <p style="margin: 0;">Mesaj gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
+                        </div>
+                    <?php endif; ?>
+
                     <?php if ( $msg_sent ) : ?>
                         <div class="success-box">
                             <span class="dashicons dashicons-yes-alt"></span>

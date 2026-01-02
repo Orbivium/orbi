@@ -91,7 +91,12 @@ get_header();
                 <div class="container container-narrow">
                     <div class="entry-content">
                         <?php
+                        
                         the_content();
+
+                        if ( function_exists('oyunhaber_display_ad') ) { 
+                            oyunhaber_display_ad('single_bottom'); 
+                        }
 
                         wp_link_pages( array(
                             'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'oyunhaber' ),

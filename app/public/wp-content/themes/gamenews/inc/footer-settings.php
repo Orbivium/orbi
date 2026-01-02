@@ -139,6 +139,7 @@ function oyunhaber_social_render($args) {
 function oyunhaber_contact_email_render() {
     $value = get_option('oyunhaber_contact_email');
     echo '<input type="email" name="oyunhaber_contact_email" value="' . esc_attr($value) . '" class="regular-text" placeholder="iletisim@orbi.local">';
+    echo '<p class="description">İletişim formundan gönderilen mesajlar bu e-posta adresine iletilir.</p>';
 }
 
 function oyunhaber_contact_address_render() {

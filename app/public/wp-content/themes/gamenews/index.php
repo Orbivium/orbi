@@ -223,7 +223,11 @@ $latest_query = new WP_Query(array(
 
             <?php if ( $latest_query->have_posts() ) : ?>
                 <div class="latest-grid">
-                <?php while ( $latest_query->have_posts() ) : $latest_query->the_post(); ?>
+                <?php 
+                $post_count = 0;
+                while ( $latest_query->have_posts() ) : $latest_query->the_post(); 
+                    $post_count++;
+                ?>
                     
                     <div class="latest-card">
                         <div class="card-thumb">
@@ -258,6 +262,13 @@ $latest_query = new WP_Query(array(
                             </div>
                         </div>
                     </div>
+
+                    <?php 
+                    // Inject Ad every 6 posts
+                    if ( $post_count % 6 === 0 && function_exists('oyunhaber_display_in_feed_ad') ) {
+                        oyunhaber_display_in_feed_ad();
+                    }
+                    ?>
 
                 <?php endwhile; ?>
                 </div>

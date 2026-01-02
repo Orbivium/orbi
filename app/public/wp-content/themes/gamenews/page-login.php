@@ -81,6 +81,13 @@ get_header();
                     <div class="msg-box error"><?php echo esc_html( $error_message ); ?></div>
                 <?php endif; ?>
 
+                <?php if ( isset($_GET['auth_msg']) && $_GET['auth_msg'] === 'reset_sent' ) : ?>
+                    <div class="msg-box success" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.2); margin-bottom:20px; padding:15px; border-radius:10px;">
+                        <span class="dashicons dashicons-email-alt" style="margin-right:5px; vertical-align:middle;"></span>
+                        E-posta adresinize şifre sıfırlama bağlantısı gönderildi.
+                    </div>
+                <?php endif; ?>
+
                 <form method="post" class="login-form">
                     <?php wp_nonce_field( 'oyunhaber_login_action', 'oyunhaber_login_nonce' ); ?>
                     
