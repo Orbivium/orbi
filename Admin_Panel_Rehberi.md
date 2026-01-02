@@ -1,38 +1,64 @@
-# ORBI Admin Panel Rehberi v1.0
+# 👑 ORBI ADMİN PANEL REHBERİ (V2.0 - DETAYLI)
 
-## 1. Yönetici Paneline Erişim
-- **Giriş Adresi:** `/wp-admin/` (Sadece yetkili hesaplar erişebilir).
-- **Yetkiler:** Yönetici (Administrator) tüm sisteme, Editör (Editor) içeriklere, Moderatör ise yorumlara ve basit kullanıcı yönetimine erişebilir.
+Bu rehber, site yöneticilerinin ve editörlerin içerik girerken, siteyi düzenlerken uyması gereken teknik ve estetik standartları açıklar.
 
-## 2. İçerik Yönetimi (Haberler ve İncelemeler)
-Sitedeki tüm içerikler "Yazılar" (Posts) bölümünden yönetilir.
+## 1. MÜKEMMEL İÇERİK GİRİŞ REHBERİ
 
-### Yeni İçerik Ekleme:
-1.  ** başlık:** Çarpıcı ve kısa bir başlık girin.
-2.  **İçerik:** Editörü kullanarak metninizi, görsellerinizi ekleyin.
-3.  **Kategori:** Haberin türünü seçin (Haber, İnceleme, Rehber).
-4.  **Platform (Önemli):** Sağ taraftaki "Platform" kutusundan ilgili platformu seçin (Örn: PC, Xbox). *Bu seçim, sitenin renginin o yazıdayken değişmesini sağlar.*
-5.  **Öne Çıkan Görsel:** Mutlaka 16:9 formatında yüksek kaliteli bir kapak görseli yükleyin.
+Yeni bir haber veya inceleme eklerken şu adımları takip edin:
 
-## 3. Kullanıcı Yönetimi
-"Kullanıcılar" sekmesinden tüm üyeleri görebilirsiniz.
-- **Rol Değiştirme:** Bir üyeyi "Moderatör" veya "Editör" yapmak için profilini düzenleyin ve Rol kısmını değiştirin.
-- **Banlama:** Kullanıcıyı silmek yerine veya rolünü "Subscriber" (Abone) seviyesine çekerek yetkilerini alabilirsiniz.
+### 📸 Görsel Hazırlığı (En Önemli Kısım)
+- **Kapak Görseli:** 1920x1080 px (veya 16:9 oranında en az 1200x675 px).
+- **Format:** WebP önerilir (Boyut tasarrufu için). Kaydederken "Kalite: 75" idealdir.
+- **Dosya İsmi:** `starfield-inceleme.jpg` gibi temiz ve küçük harfli isimler kullanın.
 
-## 4. Site Ayarları
-Panelin sol menüsündeki "Görünüm" > "Bileşenler" (Widgets) kısmından Footer (Site Altı) alanlarını düzenleyebilirsiniz.
-- **Footer About:** Hakkımızda yazısı.
-- **Footer Sitemap:** Yararlı linkler.
-- **Footer Social:** Sosyal medya ikonları.
-
-## 5. Reklam Yönetimi
-"Ads Manager" sekmesinden (varsa) site içi reklam alanlarını yönetebilirsiniz.
-- **Header Ad:** Üst menü altındaki banner.
-- **Sidebar Ad:** Haber detayında sağda çıkan banner.
-
-## 6. Güvenlik Notları
-- Şifrenizi kimseyle paylaşmayın.
-- Şüpheli bir admin girişi fark ederseniz "Activity Log" (Eylem Günlüğü) kısmından IP adresini kontrol edin.
+### ✍️ Yazı Ayarları
+1.  **Başlık:** Maksimum 65 karakter (Google arama sonuçları için).
+2.  **Özet (Spot):** Yazının başında kalın (Bold) harflerle kısa bir giriş yapın.
+3.  **Kategori:** Haberin türünü doğru seçin (Dosya Konusu, İnceleme, Güncel Haber).
+4.  **Platform (KRİTİK):** Metin editörünün sağ tarafındaki "Platform" kutusundan doğru platformu seçin. **Eğer seçmezseniz sitenin rengi standart kırmızı kalır.**
 
 ---
-**Not:** Teknik bir sorun yaşarsanız *Teknik Defter*'e başvurun veya geliştirici ile iletişime geçin.
+
+## 2. ANA SAYFA VE SLIDER YÖNETİMİ
+
+Ana sayfa slider'ı sitenin ilk izlenimidir.
+
+- **Sayı:** Slider'da en fazla 5-6 içerik tutun. Fazlası yükleme hızını düşürür.
+- **Seçim:** "Slider'da Göster" seçeneği (eğer temaya entegre ise) veya ilgili kategoriyi kullanarak slider içeriğini belirleyin.
+- **Slider Görseli:** Yazı içindeki görsellerden farklı olarak, slider görseli temiz ve yazısız olmalıdır (Sistem başlığı otomatik üzerine basar).
+
+---
+
+## 3. ÜYE VE ROL YÖNETİMİ
+
+Kullanıcılar sekmesinden yeni üyeler oluşturabilir veya yetki verebilirsiniz.
+
+- **Roller:**
+    - **Administrator:** Sınırsız yetki. Sadece ana sahiplerde olmalı.
+    - **Editor:** Yazı yazabilir, silebilir, görselleri yönetebilir.
+    - **Moderator:** Sadece yorumları yönetir, yazı silemez.
+    - **Subscriber:** Standart üye. Sadece profilini düzenleyebilir.
+
+---
+
+## 4. TEMA VE BİLEŞEN (WIDGET) AYARLARI
+
+###  Footer (Site Altı) Düzenleme
+**Görünüm > Bileşenler** yolunu izleyin:
+- **Footer 1 (Hakkımızda):** Kısa bir tanıtım ve vizyon cümlesi.
+- **Footer 2 (Site Haritası):** Menü üzerinden önemli linkler.
+- **Footer 3 (Sosyal Medya):** Instagram, YouTube, X linklerinizi güncelleyin.
+
+### 🎨 Renk Değişimi
+Platform taksonomisi üzerinden renkleri değiştirebilirsiniz:
+**Yazılar > Platformlar** sekmesine gidin, platformu düzenleyin ve varsa renk alanını güncelleyin (Teknik olarak `functions.php` içindeki array daha önceliklidir).
+
+---
+
+## 5. KRİTİK BAKIM NOTLARI
+1.  **Gereksiz Eklenti:** Performans için gereksiz eklentileri aktif etmeyin.
+2.  **Önbellek (Cache):** Sitede yaptığınız değişiklikler görünmüyorsa, varsa önbellek eklentisinden "Clear Cache" yapın.
+3.  **Resim Kütüphanesi:** Artık kullanılmayan çok eski görselleri silerek sunucu alanından tasarruf edin.
+
+---
+**Destek:** Büyük bir teknik arıza durumunda `Teknik Defter` dosyasındaki dosya hiyerarşisini kontrol ederek sorunun kaynağını bulabilirsiniz.
